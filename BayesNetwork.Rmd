@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = FALSE)
 ## Packages
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 
-package_name = c('e1071', 'klaR', 'dplyr', 'DT')
+package_name = c('e1071', 'klaR', 'dplyr', 'DT', 'ggplot2', 'tidyr')
 for(p in package_name) {
   if(! p %in% rownames(installed.packages())){
     cat('Try to install ', p, 'now !\n')
@@ -31,10 +31,12 @@ for(p in package_name) {
 
 ## Library
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-library(dplyr)
-library(e1071)
-library(klaR)
+library(dplyr) # Data Manipulation
+library(tidyr) # gather and spread dataframe
+library(e1071) # NaiveBayes
+library(klaR) # NaiveBayes
 library(DT) # Datatable
+library(ggplot2) # Plot
 ```
 
 
@@ -45,9 +47,9 @@ library(DT) # Datatable
 ```{r}
 
 model_performance <- function(predict_condition, true_condition){
+  
   # Confusion Matrix, Contingency Table
   confusion_matrix <- table(predict_condition, true_condition)
-  print(confusion_matrix)
   
   # Hit, True Positive
   TP <-  confusion_matrix[1,1]
@@ -85,6 +87,7 @@ model_performance <- function(predict_condition, true_condition){
   FOR <- FN / (FN + TN)
   
   
+  
   # Threat Score, Critical Success Index
   TS <- TP / (TP + FN + FP)
   
@@ -98,16 +101,101 @@ model_performance <- function(predict_condition, true_condition){
   F1 <- 2*(PPV*TPR)/(PPV+TPR)
   
   # Matthews correlation coefficient
-  MCC <- (TP*TN -FP*FN) / sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))
+  MCC <- (TP*TN -FP*FN) / (sqrt(TP+FP)*sqrt(TP+FN)*sqrt(TN+FP)*sqrt(TN+FN))
   
-  # 
+  # Bookmaker Informedness
+  BM <- TPR + TNR - 1
+  
+  # Markedness, delta-P
+  MK <- PPV + NPV - 1
+  
+  df = data.frame(
+        TPR = TPR, 
+        TNR = TNR, 
+        PPV = PPV, 
+        NPV = NPV, 
+        FNR = FNR, 
+        FPR = FPR, 
+        FDR = FDR, 
+        FOR = FOR, 
+        TS = TS, 
+        ACC = ACC, 
+        BA = BA, 
+        F1 = F1, 
+        MCC = MCC, 
+        BM = BM, 
+        MK = MK
+      )
+  
+  
+  positive_measure = df[c('TPR', 'TNR', 'PPV', 'NPV', 'F1',
+                          'ACC', 'TS', 'BA', "BM", 'MK')]%>% gather
+
+  plot_positive <-  ggplot(positive_measure, 
+       aes(x=reorder(key,-value),y=value,fill=key))+
+        geom_bar(stat="identity")+
+        # coord_polar(theta="x",direction=1)+
+        labs(x="Measure",y="Performance")+
+        theme(legend.position="bottom",legend.box="horizontal")+
+        ggtitle(label = 'Positive Model Performance',
+                subtitle = 'The higher, the better.')+
+        geom_text(aes(x = reorder(key,-value),
+                            y=value, 
+                            label = round(value, 2)),
+                  vjust = 1.2)
+  
+  
+  negative_measure = df[c("FNR", "FPR", "FDR", "FOR")]%>% gather
+
+  plot_negative <- ggplot(negative_measure, 
+       aes(x=reorder(key,-value),y=value,fill=key))+
+        geom_bar(stat="identity")+
+        # coord_polar(theta="x",direction=1)+
+        labs(x="Measure",y="Performance")+
+        theme(legend.position="bottom",legend.box="horizontal")+
+        ggtitle(label = 'Negative Model Performance',
+                subtitle = 'The lower, the better.')+
+        geom_text(aes(x = reorder(key,-value),
+                            y=value, 
+                            label = round(value, 2)),
+                  vjust = 1.2)
+
+
+  return(
+    list(
+      confusion_matrix = confusion_matrix,
+      TP = TP, 
+      TN = TN, 
+      FP = FP, 
+      FN = FN, 
+      
+      TPR = TPR, 
+      TNR = TNR, 
+      PPV = PPV, 
+      NPV = NPV, 
+      FNR = FNR, 
+      FPR = FPR, 
+      FDR = FDR, 
+      FOR = FOR, 
+      TS = TS, 
+      ACC = ACC, 
+      BA = BA, 
+      F1 = F1, 
+      MCC = MCC, 
+      BM = BM, 
+      MK = MK,
+  
+      df = df,
+      plot_positive = plot_positive,
+      plot_negative = plot_negative
+    )
+  )
   
 }
 
 ```
 
-  
-  
+
   
 [Reference : Sensitivity and specificity](https://en.wikipedia.org/wiki/Sensitivity_and_specificity)
 
@@ -165,28 +253,33 @@ model_NaiveBayes =  naiveBayes(
 ```
 
 
-##
+## NaiveBayes Model
 
 ```{r}
 model_NaiveBayes
 ```
 
+## NaiveBayes Performance I
 
 ```{r}
 pred_NaiveBayes <- predict(model_NaiveBayes,rawdata) # predict survived
 Titanic_survived <- rawdata$Survived # real survived
 
 
+perform_NaiveBayes = model_performance(pred_NaiveBayes, Titanic_survived)
 
 
-
+perform_NaiveBayes$plot_positive
 
 ```
 
 
 
+##  NaiveBayes Performance II
 
-
+```{r}
+perform_NaiveBayes$plot_negative
+```
 
 
 
