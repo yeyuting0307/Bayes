@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = FALSE)
 ## Packages
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 
-package_name = c('e1071', 'klaR', 'dplyr', 'DT', 'ggplot2', 'tidyr')
+package_name = c('e1071', 'klaR', 'dplyr', 'DT', 'ggplot2', 'tidyr', 'deal')
 for(p in package_name) {
   if(! p %in% rownames(installed.packages())){
     cat('Try to install ', p, 'now !\n')
@@ -31,12 +31,16 @@ for(p in package_name) {
 
 ## Library
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(magrittr) # %<>%
 library(dplyr) # Data Manipulation
 library(tidyr) # gather and spread dataframe
 library(e1071) # NaiveBayes
 library(klaR) # NaiveBayes
 library(DT) # Datatable
 library(ggplot2) # Plot
+library(deal) # Bayesian network
+
+
 ```
 
 
@@ -46,10 +50,10 @@ library(ggplot2) # Plot
 
 ```{r}
 
-model_performance <- function(predict_condition, true_condition){
+model_performance <- function(pred_cond, true_cond){
   
   # Confusion Matrix, Contingency Table
-  confusion_matrix <- table(predict_condition, true_condition)
+  confusion_matrix <- table(pred_cond, true_cond)
   
   # Hit, True Positive
   TP <-  confusion_matrix[1,1]
@@ -203,7 +207,7 @@ model_performance <- function(predict_condition, true_condition){
 
 
 
-## Slide with R Output
+## Data I : Titanic
 
 ```{r cars, echo = TRUE}
 data('Titanic') # Its class is table. 
@@ -214,12 +218,12 @@ datatable(df_Titanic, options = list(pageLength = 5))
 
 ## Questions
 
-+ Is  **Sirvived** correlated with **Class**, **Sex**, or **Age** ?
-  1. Do those in 1st class have more survival probability?
-  2. Do the female survived more than the male?
-  3. Are children prior to be rescued?
++ The factor of **Sirvived** is correlated with **Class**, **Sex**, or **Age** ?
+  1. The survival probability is more in 1st class?
+  2. The female survived more than the male?
+  3. The children are prior to be rescued?
   
-+ Are **Class**, **Sex**, and **Age** independent variables ?
++ Are **Class**, **Sex**, and **Age** independent variables?
 
 
 + Is it possible to describe the relationship of these explanatory and explained variables?
@@ -241,60 +245,75 @@ nrow(rawdata)
 
 ## Bayes Theorem
 
-+ Explainary : Class(F1), Sex(F2), Age(F3)
++ Explainatory : Class(F1), Sex(F2), Age(F3)
 + Explained : Survived(C)
 
 Target: find posterior prob. $P(C|F_1,F_2, F_3)$
 
 Now we calculate these below with observed sample data :
 
-1. $\hat P(F_1,F_2, F_3)$ ... sometimes we may get whole population data (called evidence) 
+1. $\hat P(F_1,F_2, F_3)$ ... sometimes we may get whole population data (evidence) 
 
 2. $\hat P(F_1,F_2, F_3|C)$ 
 
 3. $\hat P(C|F_1,F_2, F_3)$ 
 
-4. $\hat P(C)$ ... sometimes we may get larger sample not corresponding to F, or let experts to set a proper prior estimator
+4. $\hat P(C)$ : sometimes we may get more info about C, or let experts set a proper prior estimator
+
+
+## Bayes Theorem
+
+We have 2 ways to estimate$P(C|F_1,F_2, F_3)$
+
+Plan A: Only use sample data to calc. $\hat P(C|F_1,F_2, F_3)$ 
+
+Plan B: Use Bayesian concept $\frac{\hat P(C) ×\hat P(F_1,F_2, F_3|C)}{\hat P(F_1,F_2, F_3)}$
+
+
+Since we dont have any prior Titanic survived info or experts's suggestion, only relying on the sample data, the plan A may differ **little** from plan B.
+
+
+
+## Bayesian Model
+
++ Naive Bayes
+
+  Assuming the explanatory variables are **conditionally independent**.
+
+
++ Bayesian Network
+
+  The explanatory variables are **correlated**.
+
 
 
 ## Naive Bayes Model
 
 ```{r echo=TRUE}
-# laplace: laplace smoothing
-# type: output type, show class or raw probability.
-# threshold: ...
-# na.action: process NA
+# na.action: na.pass or na.omit 
 
-model_NaiveBayes =  naiveBayes(
-  formula = Survived ~ .,
-  data = rawdata)
+model_NaiveBayes =  naiveBayes(formula = Survived ~ ., 
+                               data = rawdata, 
+                               na.action = na.pass)
 
-```
-
-
-## NaiveBayes Model
-
-```{r}
-model_NaiveBayes
-```
-
-## NaiveBayes Performance I
-
-```{r}
 pred_NaiveBayes <- predict(model_NaiveBayes,rawdata) # predict survived
 Titanic_survived <- rawdata$Survived # real survived
 
-
 perform_NaiveBayes = model_performance(pred_NaiveBayes, Titanic_survived)
-
-
-perform_NaiveBayes$plot_positive
+perform_NaiveBayes$confusion_matrix
 
 ```
 
 
+## NaiveBayes Performance
 
-##  NaiveBayes Performance II
+```{r}
+perform_NaiveBayes$plot_positive
+```
+
+
+
+##  NaiveBayes Performance
 
 ```{r}
 perform_NaiveBayes$plot_negative
@@ -302,6 +321,53 @@ perform_NaiveBayes$plot_negative
 
 
 
+## Bayesian Network (Custom Arrow)
+```{r echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
+Titanic_network <- network(rawdata)
+Titanic_prior = jointprior(Titanic_network)
+Titanic_network %<>% {getnetwork(learn(. , rawdata, Titanic_prior))}
+
+Titanic_network %<>% 
+  {getnetwork(insert(. ,1, 4, rawdata, Titanic_prior))} %>% 
+  {getnetwork(insert(. ,2, 4, rawdata, Titanic_prior))} %>% 
+  {getnetwork(insert(. ,3, 4, rawdata, Titanic_prior))} %>% 
+  {getnetwork(insert(. ,2, 1, rawdata, Titanic_prior))} %>% 
+  {getnetwork(insert(. ,3, 1, rawdata, Titanic_prior))}
 
 
+```
+
+## Bayesian Network (Custom Arrow)
+
+```{r}
+plot(Titanic_network)
+```
+
+
+
+## Bayesian Network (Auto Search)
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+Titanic_network <- network(rawdata)
+Titanic_prior = jointprior(Titanic_network)
+
+Titanic_network %<>% {getnetwork(learn(. , rawdata, Titanic_prior))}
+
+
+```
+
+
+## Bayesian Network (Auto Search)
+
+```{r}
+Titanic_autoNetwork <- autosearch(Titanic_network, rawdata, Titanic_prior, 
+                                  trace = FALSE, removecycles = TRUE)
+
+```
+
+## Bayesian Network (Auto Search)
+
+```{r}
+plot(getnetwork(Titanic_autoNetwork))
+```
 
