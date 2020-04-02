@@ -238,6 +238,25 @@ nrow(rawdata)
 
 ```
 
+
+## Bayes Theorem
+
++ Explainary : Class(F1), Sex(F2), Age(F3)
++ Explained : Survived(C)
+
+Target: find posterior prob. $P(C|F_1,F_2, F_3)$
+
+Now we calculate these below with observed sample data :
+
+1. $\hat P(F_1,F_2, F_3)$ ... sometimes we may get whole population data (called evidence) 
+
+2. $\hat P(F_1,F_2, F_3|C)$ 
+
+3. $\hat P(C|F_1,F_2, F_3)$ 
+
+4. $\hat P(C)$ ... sometimes we may get larger sample not corresponding to F, or let experts to set a proper prior estimator
+
+
 ## Naive Bayes Model
 
 ```{r echo=TRUE}

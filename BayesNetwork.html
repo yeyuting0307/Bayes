@@ -5632,8 +5632,8 @@ library(ggplot2) # Plot</pre>
 df_Titanic = data.frame(Titanic)
 datatable(df_Titanic, options = list(pageLength = 5))</pre>
 
-<div id="htmlwidget-e37bd155fa67879b3973" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-e37bd155fa67879b3973">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32"],["1st","2nd","3rd","Crew","1st","2nd","3rd","Crew","1st","2nd","3rd","Crew","1st","2nd","3rd","Crew","1st","2nd","3rd","Crew","1st","2nd","3rd","Crew","1st","2nd","3rd","Crew","1st","2nd","3rd","Crew"],["Male","Male","Male","Male","Female","Female","Female","Female","Male","Male","Male","Male","Female","Female","Female","Female","Male","Male","Male","Male","Female","Female","Female","Female","Male","Male","Male","Male","Female","Female","Female","Female"],["Child","Child","Child","Child","Child","Child","Child","Child","Adult","Adult","Adult","Adult","Adult","Adult","Adult","Adult","Child","Child","Child","Child","Child","Child","Child","Child","Adult","Adult","Adult","Adult","Adult","Adult","Adult","Adult"],["No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes"],[0,0,35,0,0,0,17,0,118,154,387,670,4,13,89,3,5,11,13,0,1,13,14,0,57,14,75,192,140,80,76,20]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Class<\/th>\n      <th>Sex<\/th>\n      <th>Age<\/th>\n      <th>Survived<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"columnDefs":[{"className":"dt-right","targets":5},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-86218d23abc26775f51a" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-86218d23abc26775f51a">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32"],["1st","2nd","3rd","Crew","1st","2nd","3rd","Crew","1st","2nd","3rd","Crew","1st","2nd","3rd","Crew","1st","2nd","3rd","Crew","1st","2nd","3rd","Crew","1st","2nd","3rd","Crew","1st","2nd","3rd","Crew"],["Male","Male","Male","Male","Female","Female","Female","Female","Male","Male","Male","Male","Female","Female","Female","Female","Male","Male","Male","Male","Female","Female","Female","Female","Male","Male","Male","Male","Female","Female","Female","Female"],["Child","Child","Child","Child","Child","Child","Child","Child","Adult","Adult","Adult","Adult","Adult","Adult","Adult","Adult","Child","Child","Child","Child","Child","Child","Child","Child","Adult","Adult","Adult","Adult","Adult","Adult","Adult","Adult"],["No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes"],[0,0,35,0,0,0,17,0,118,154,387,670,4,13,89,3,5,11,13,0,1,13,14,0,57,14,75,192,140,80,76,20]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Class<\/th>\n      <th>Sex<\/th>\n      <th>Age<\/th>\n      <th>Survived<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"columnDefs":[{"className":"dt-right","targets":5},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 
 </article></slide><slide class=""><hgroup><h2>Questions</h2></hgroup><article  id="questions">
 
@@ -5662,6 +5662,24 @@ nrow(df_Titanic) # Titanic is an aggregation data</pre>
 <pre class = 'prettyprint lang-r'>nrow(rawdata) </pre>
 
 <pre >## [1] 2201</pre>
+
+</article></slide><slide class=""><hgroup><h2>Bayes Theorem</h2></hgroup><article  id="bayes-theorem">
+
+<ul>
+<li>Explainary : Class(F1), Sex(F2), Age(F3)</li>
+<li>Explained : Survived(C)</li>
+</ul>
+
+<p>Target: find posterior prob. \(P(C|F_1,F_2, F_3)\)</p>
+
+<p>Now we calculate these below with observed sample data :</p>
+
+<ol>
+<li><p>\(\hat P(F_1,F_2, F_3)\) … sometimes we may get whole population data (called evidence)</p></li>
+<li><p>\(\hat P(F_1,F_2, F_3|C)\)</p></li>
+<li><p>\(\hat P(C|F_1,F_2, F_3)\)</p></li>
+<li><p>\(\hat P(C)\) … sometimes we may get larger sample not corresponding to F, or let experts to set a proper prior estimator</p></li>
+</ol>
 
 </article></slide><slide class=""><hgroup><h2>Naive Bayes Model</h2></hgroup><article  id="naive-bayes-model">
 
