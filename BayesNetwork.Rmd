@@ -3,6 +3,8 @@ title: "Bayes Network"
 author: "Mike"
 date: "2020/3/20"
 output: ioslides_presentation
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -278,8 +280,9 @@ Since we dont have any prior Titanic survived info or experts's suggestion, only
 
 + Naive Bayes
 
-  Assuming the explanatory variables are **conditionally independent**.
+  + Assuming the explanatory variables are **conditionally independent**.
 
+  + [e1071::naiveBayes Source Code](https://rdrr.io/rforge/e1071/src/R/naiveBayes.R)
 
 + Bayesian Network
 
@@ -287,7 +290,11 @@ Since we dont have any prior Titanic survived info or experts's suggestion, only
 
 
 
+
+
+
 ## Naive Bayes Model
+
 
 ```{r echo=TRUE}
 # na.action: na.pass or na.omit 
